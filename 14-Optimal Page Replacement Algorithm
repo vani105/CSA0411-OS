@@ -1,0 +1,52 @@
+#include <stdio.h>
+
+int findFuture(int pages[], int n, int index, int frame[], int f) {
+    int farthest = index, pos = -1, i, j;
+    for (i = 0; i < f; i++) {
+        for (j = index; j < n; j++) {
+            if (frame[i] == pages[j]) {
+                if (j > farthest) {
+                    farthest = j;
+                    pos = i;
+                }
+                break;
+            }
+        }
+        if (j == n) return i;
+    }
+    return (pos == -1) ? 0 : pos;
+}
+
+int main() {
+    int pages[30], frame[10], n, f, i, j, flag, faults = 0;
+    printf("Enter number of frames: ");
+    scanf("%d", &f);
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+    printf("Enter reference string: ");
+    for (i = 0; i < n; i++) scanf("%d", &pages[i]);
+
+    for (i = 0; i < f; i++) frame[i] = -1;
+
+    for (i = 0; i < n; i++) {
+        flag = 0;
+        for (j = 0; j < f; j++)
+            if (frame[j] == pages[i]) flag = 1;
+
+        if (!flag) {
+            int pos = findFuture(pages, n, i + 1, frame, f);
+            frame[pos] = pages[i];
+            faults++;
+        }
+    }
+
+    printf("Total Page Faults (Optimal): %d\n", faults);
+    return 0;
+}
+
+INPUT:
+Enter number of frames: 3
+Enter number of pages: 9
+Enter reference string: 1 2 3 4 1 2 5 1 2
+OUTPUT:
+Total Page Faults (Optimal): 5
