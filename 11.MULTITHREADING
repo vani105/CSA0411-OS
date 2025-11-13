@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <stdlib.h>
+
+void* threadFunction(void* arg) {
+    printf("Thread is running...\n");
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t thread1, thread2;
+
+    // Create two threads
+    if (pthread_create(&thread1, NULL, threadFunction, NULL) != 0) {
+        printf("Error creating thread1\n");
+        return 1;
+    }
+    if (pthread_create(&thread2, NULL, threadFunction, NULL) != 0) {
+        printf("Error creating thread2\n");
+        return 1;
+    }
+
+    printf("Threads created successfully\n");
+
+    // Wait for threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    printf("Threads completed execution\n");
+    return 0;
+}
+OUTPUT:
+Thread is running...
+Thread is running...
+Threads created successfully
+Threads completed execution
+}
