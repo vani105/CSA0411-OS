@@ -31,3 +31,18 @@ int main(){
     printf("Avg WT=%.2f, Avg TAT=%.2f\n", totw/n, tott/n);
     return 0;
 }
+INPUT:
+Num processes: 3
+P1 Burst: 4
+P1 Priority (1-high): 2
+P2 Burst: 2
+P2 Priority (1-high): 1
+P3 Burst: 3
+P3 Priority (1-high): 3
+OUTPUT:
+P	BT	PR	WT	TAT
+P1	4	2	2	6
+P2	2	1	0	2
+P3	3	3	6	9
+Avg WT=2.67, Avg TAT=5.67
+
