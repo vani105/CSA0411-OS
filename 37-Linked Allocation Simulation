@@ -1,0 +1,57 @@
+// linked_alloc.c
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DISK 50
+int disk[DISK]; // 0 free, 1 used
+
+// simulate next pointers using an array; -1 means end
+int nextBlock[DISK];
+
+typedef struct {
+    char name[20];
+    int start; // first block
+    int last;  // last block (optional)
+} FileEntry;
+
+int main(){
+    for(int i=0;i<DISK;i++){ disk[i]=0; nextBlock[i]=-1; }
+    FileEntry file;
+    strcpy(file.name, "fileLinked");
+    // allocate scattered blocks: 7 -> 2 -> 19 -> 25
+    file.start = 7; disk[7]=1;
+    nextBlock[7] = 2; disk[2]=1;
+    nextBlock[2] = 19; disk[19]=1;
+    nextBlock[19] = 25; disk[25]=1;
+    nextBlock[25] = -1;
+    file.last = 25;
+
+    printf("File: %s\nBlock chain:\n", file.name);
+    int cur = file.start;
+    while(cur != -1) {
+        printf("  block %d -> ", cur);
+        cur = nextBlock[cur];
+        if (cur == -1) printf("END\n");
+    }
+
+    // to read record 3 (third block) we follow pointers from start
+    int k = 3;
+    cur = file.start;
+    int steps = 1;
+    while(cur != -1 && steps < k){
+        cur = nextBlock[cur];
+        steps++;
+    }
+    if (cur != -1) printf("\nRecord %d is in block %d\n", k, cur);
+    else printf("\nRecord %d does not exist\n", k);
+    return 0;
+    }
+OUTPUT:
+    File: fileLinked
+Block chain:
+  block 7 ->   block 2 ->   block 19 ->   block 25 -> END
+
+Record 3 is in block 19
+
+    
+}
