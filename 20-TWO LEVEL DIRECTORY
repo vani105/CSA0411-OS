@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char user[10][20][20];  
+    int fileCount[10] = {0};
+    int userCount = 0;
+
+    int choice;
+    char username[20], filename[20];
+
+    while(1) {
+        printf("\n1. Create User\n2. Create File\n3. List Files\n4. Exit\nEnter choice: ");
+        scanf("%d", &choice);
+
+        if(choice == 1) {
+            printf("Enter user name: ");
+            scanf("%s", username);
+            strcpy(user[userCount][0], username);
+            userCount++;
+            printf("User created.\n");
+        }
+
+        else if(choice == 2) {
+            printf("Enter user name: ");
+            scanf("%s", username);
+
+            int u = -1;
+            for(int i = 0; i < userCount; i++)
+                if(strcmp(user[i][0], username) == 0)
+                    u = i;
+
+            if(u == -1) {
+                printf("User not found.\n");
+                continue;
+            }
+
+            printf("Enter file name: ");
+            scanf("%s", filename);
+
+            int exists = 0;
+            for(int i = 1; i <= fileCount[u]; i++)
+                if(strcmp(user[u][i], filename) == 0)
+                    exists = 1;
+
+            if(exists)
+                printf("File already exists.\n");
+            else {
+                strcpy(user[u][++fileCount[u]], filename);
+                printf("File created.\n");
+            }
+        }
+
+        else if(choice == 3) {
+            printf("Enter user name: ");
+            scanf("%s", username);
+
+            int u = -1;
+            for(int i = 0; i < userCount; i++)
+                if(strcmp(user[i][0], username) == 0)
+                    u = i;
+
+            if(u == -1) {
+                printf("User not found.\n");
+                continue;
+            }
+
+            printf("Files of %s:\n", username);
+            for(int i = 1; i <= fileCount[u]; i++)
+                printf("%s\n", user[u][i]);
+        }
+
+        else break;
+    }
+
+    return 0;
+    }
+    OUTPUT:
+    1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 1
+Enter user name: alice
+User created.
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 1
+Enter user name: bob
+User created.
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 2
+Enter user name: alice
+Enter file name: report.txt
+File created.
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 2
+Enter user name: alice
+Enter file name: data.csv
+File created.
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 2
+Enter user name: bob
+Enter file name: project.doc
+File created.
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 2
+Enter user name: alice
+Enter file name: report.txt
+File already exists.
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 3
+Enter user name: alice
+Files of alice:
+report.txt
+data.csv
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 3
+Enter user name: bob
+Files of bob:
+project.doc
+
+1. Create User
+2. Create File
+3. List Files
+4. Exit
+Enter choice: 4
+
+    
+}
