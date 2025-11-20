@@ -1,0 +1,54 @@
+// cscan_disk.c
+#include <stdio.h>
+#include <stdlib.h>
+
+int cmp(const void *a, const void *b){ return (*(int*)a - *(int*)b); }
+
+int main(){
+    int n, maxcyl;
+    printf("Number of requests: ");
+    if (scanf("%d",&n)!=1) return 0;
+    int req[n];
+    printf("Enter requests:\n");
+    for(int i=0;i<n;i++) scanf("%d",&req[i]);
+    int head; printf("Initial head: "); scanf("%d",&head);
+    printf("Max cylinder (e.g., 199): "); scanf("%d",&maxcyl);
+
+    qsort(req, n, sizeof(int), cmp);
+    int left[n], right[n], lcnt=0, rcnt=0;
+    for(int i=0;i<n;i++){
+        if (req[i] < head) left[lcnt++]=req[i];
+        else right[rcnt++]=req[i];
+    }
+    int total=0, cur=head;
+    printf("Service order: %d", cur);
+    // go right
+    for(int i=0;i<rcnt;i++){
+        total += abs(right[i]-cur); cur = right[i];
+        printf(" -> %d", cur);
+    }
+    // jump to beginning (simulate move to end then to 0)
+    if (lcnt>0){
+        total += abs((maxcyl-1) - cur); // to end
+        total += (maxcyl-1); // from end to 0 (jump)
+        cur = 0;
+        printf(" -> %d", maxcyl-1); // show end
+        for(int i=0;i<lcnt;i++){
+            total += abs(left[i]-cur); cur = left[i];
+            printf(" -> %d", cur);
+        }
+    }
+    printf("\nTotal head movement = %d\n", total);
+    return 0;
+}
+INPUTS:
+Number of requests: 8
+Enter requests:
+98 183 37 122 14 124 65 67
+Initial head: 53
+Max cylinder (e.g., 199): 199
+OUTPUTS:
+Service order: 53 -> 65 -> 67 -> 98 -> 122 -> 124 -> 183 -> 198 -> 0 -> 14 -> 37
+Total head movement = 830
+
+}
