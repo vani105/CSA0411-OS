@@ -1,0 +1,86 @@
+// rw_semaphore.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+sem_t wrt;           // writer semaphore
+pthread_mutex_t mutex; // protects rc
+int readcount = 0;
+
+void *reader(void *arg) {
+    int id = *(int*)arg;
+    usleep(1000 * (rand()%100)); // random arrival
+    // entry section
+    pthread_mutex_lock(&mutex);
+    readcount++;
+    if (readcount == 1) sem_wait(&wrt); // first reader locks writers
+    pthread_mutex_unlock(&mutex);
+
+    // critical section: reading
+    printf("Reader %d: reading data...\n", id);
+    usleep(50000); // simulate reading
+    printf("Reader %d: done reading.\n", id);
+
+    // exit section
+    pthread_mutex_lock(&mutex);
+    readcount--;
+    if (readcount == 0) sem_post(&wrt); // last reader releases writers
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+}
+
+void *writer(void *arg) {
+    int id = *(int*)arg;
+    usleep(1000 * (rand()%100));
+    printf("Writer %d: wants to write.\n", id);
+    sem_wait(&wrt); // acquire exclusive access
+    // critical section: writing
+    printf("Writer %d: writing data...\n", id);
+    usleep(80000); // simulate writing
+    printf("Writer %d: done writing.\n", id);
+    sem_post(&wrt);
+    return NULL;
+}
+
+int main() {
+    srand(1);
+    sem_init(&wrt, 0, 1);
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_t rthreads[4], wthreads[2];
+    int rids[4] = {1,2,3,4}, wids[2] = {1,2};
+
+    // create reader and writer threads (interleaved)
+    pthread_create(&rthreads[0], NULL, reader, &rids[0]);
+    pthread_create(&wthreads[0], NULL, writer, &wids[0]);
+    pthread_create(&rthreads[1], NULL, reader, &rids[1]);
+    pthread_create(&rthreads[2], NULL, reader, &rids[2]);
+    pthread_create(&wthreads[1], NULL, writer, &wids[1]);
+    pthread_create(&rthreads[3], NULL, reader, &rids[3]);
+
+    for(int i=0;i<4;i++) pthread_join(rthreads[i], NULL);
+    for(int i=0;i<2;i++) pthread_join(wthreads[i], NULL);
+
+    sem_destroy(&wrt);
+    pthread_mutex_destroy(&mutex);
+    return 0;
+    }
+OUTPUT:
+Writer 1: wants to write.
+Writer 1: writing data...
+Writer 1: done writing.
+Reader 1: reading data...
+Reader 1: done reading.
+Reader 2: reading data...
+Reader 3: reading data...
+Reader 2: done reading.
+Reader 3: done reading.
+Writer 2: wants to write.
+Writer 2: writing data...
+Writer 2: done writing.
+Reader 4: reading data...
+Reader 4: done reading.
+
+}
