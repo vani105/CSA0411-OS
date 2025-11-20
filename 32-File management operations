@@ -1,0 +1,70 @@
+// file_manager.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+#define BUF 1024
+
+void create_file(const char *name) {
+    int fd = open(name, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd < 0) { perror("create"); return; }
+    printf("Enter text (single line) to write: ");
+    char line[BUF];
+    getchar(); // consume newline
+    if (!fgets(line, BUF, stdin)) line[0] = '\0';
+    write(fd, line, strlen(line));
+    close(fd);
+    printf("File created.\n");
+}
+
+void display_file(const char *name) {
+    int fd = open(name, O_RDONLY);
+    if (fd < 0) { perror("open"); return; }
+    char buf[BUF];
+    ssize_t r;
+    while ((r = read(fd, buf, BUF)) > 0) write(1, buf, r);
+    if (r<0) perror("read");
+    close(fd);
+}
+
+void copy_file(const char *src, const char *dst) {
+    int fs = open(src, O_RDONLY);
+    if (fs < 0) { perror("open src"); return; }
+    int fd = open(dst, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd < 0) { perror("open dst"); close(fs); return; }
+    char buf[BUF];
+    ssize_t r;
+    while ((r = read(fs, buf, BUF)) > 0) write(fd, buf, r);
+    close(fs); close(fd);
+    printf("Copied %s -> %s\n", src, dst);
+}
+
+int main() {
+    int choice;
+    char a[100], b[100];
+    while (1) {
+        printf("\n1.Create 2.Display 3.Copy 4.Delete 5.Append 6.Exit\nChoice: ");
+        if (scanf("%d", &choice)!=1) break;
+        if (choice==1) { printf("Filename: "); scanf("%s", a); create_file(a); }
+        else if (choice==2){ printf("Filename: "); scanf("%s", a); display_file(a); }
+        else if (choice==3){ printf("Source: "); scanf("%s", a); printf("Dest: "); scanf("%s", b); copy_file(a,b); }
+        else if (choice==4){ printf("Filename: "); scanf("%s", a); if (unlink(a)==0) printf("Deleted\n"); else perror("unlink"); }
+        else if (choice==5){ printf("Filename: "); scanf("%s", a); int fd=open(a,O_WRONLY|O_APPEND); if(fd<0){perror("open");} else { char line[BUF]; getchar(); printf("Text to append: "); fgets(line,BUF,stdin); write(fd,line,strlen(line)); close(fd); printf("Appended\n"); } }
+        else break;
+    }
+    return 0;
+}
+OUTPUT:
+1.Create 2.Display 3.Copy 4.Delete 5.Append 6.Exit
+Choice: 1
+Filename: sample.txt
+Enter text (single line) to write: Hello world
+File created.
+
+1.Create 2.Display 3.Copy 4.Delete 5.Append 6.Exit
+Choice: 2
+Filename: sample.txt
+Hello world
+
