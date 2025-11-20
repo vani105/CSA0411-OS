@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char directory[20][20];
+    int n = 0;
+    char file[20];
+
+    int choice;
+
+    while(1) {
+        printf("\n1. Create File\n2. List Files\n3. Exit\nEnter choice: ");
+        scanf("%d", &choice);
+
+        if(choice == 1) {
+            printf("Enter file name: ");
+            scanf("%s", file);
+
+            int exists = 0;
+            for(int i = 0; i < n; i++)
+                if(strcmp(directory[i], file) == 0)
+                    exists = 1;
+
+            if(exists)
+                printf("File already exists!\n");
+            else {
+                strcpy(directory[n++], file);
+                printf("File created.\n");
+            }
+        }
+        else if(choice == 2) {
+            printf("Files:\n");
+            for(int i = 0; i < n; i++)
+                printf("%s\n", directory[i]);
+        }
+        else break;
+    }
+    return 0;
+}
+OUTPUT:
+1. Create File
+2. List Files
+3. Exit
+Enter choice: 1
+Enter file name: a.txt
+File created.
+
+1. Create File
+2. List Files
+3. Exit
+Enter choice: 1
+Enter file name: b.txt
+File created.
+
+1. Create File
+2. List Files
+3. Exit
+Enter choice: 1
+Enter file name: a.txt
+File already exists!
+
+1. Create File
+2. List Files
+3. Exit
+Enter choice: 2
+Files:
+a.txt
+b.txt
+
+1. Create File
+2. List Files
+3. Exit
+Enter choice: 3
+
+First, a.txt is created.
+Then b.txt is created.
+
+}
