@@ -1,0 +1,56 @@
+// indexed_alloc.c
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DISK 50
+int disk[DISK]; // 0 = free, 1 = used
+
+typedef struct {
+    char name[20];
+    int indexBlock;   // block number of index block
+    int length;       // number of data blocks
+    int *entries;     // dynamic array of data-block numbers
+} FileEntry;
+
+int main(){
+    // simple simulation: allocate index block and data blocks for one file
+    for(int i=0;i<DISK;i++) disk[i]=0;
+    FileEntry file;
+    strcpy(file.name, "fileIndex");
+    file.length = 4;
+    file.entries = malloc(file.length * sizeof(int));
+    file.indexBlock = 5; disk[5]=1; // reserved index block
+    // pick data blocks
+    file.entries[0]=12; file.entries[1]=20; file.entries[2]=3; file.entries[3]=30;
+    for(int i=0;i<file.length;i++) disk[file.entries[i]] = 1;
+
+    printf("File: %s\nIndex block: %d\nLength: %d\nData blocks:\n", file.name, file.indexBlock, file.length);
+    for(int i=0;i<file.length;i++) printf("  entry[%d] -> block %d\n", i, file.entries[i]);
+
+    // access record 2 (index 1) -> go to index block then to block file.entries[1]
+    int rec = 2;
+    printf("\nTo access record %d: read index block %d and then data block %d\n", rec, file.indexBlock, file.entries[rec-1]);
+
+    // display disk map summary
+    printf("\nDisk map (occupied blocks): ");
+    for(int i=0;i<DISK;i++) if(disk[i]) printf("%d ", i);
+    printf("\n");
+    free(file.entries);
+    return 0;
+}
+OUTPUT:
+File: fileIndex
+Index block: 5
+Length: 4
+Data blocks:
+  entry[0] -> block 12
+  entry[1] -> block 20
+  entry[2] -> block 3
+  entry[3] -> block 30
+
+To access record 2: read index block 5 and then data block 20
+
+Disk map (occupied blocks): 3 5 12 20 30
+
+
+}
