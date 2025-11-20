@@ -1,0 +1,27 @@
+// random_access_emp.c
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    int id;
+    char name[30];
+    float salary;
+} Emp;
+
+int main(){
+    FILE *fp = fopen("emp.dat", "r+b");
+    if(!fp) fp = fopen("emp.dat", "w+b");
+    Emp e;
+    // write sample records
+    e.id=1; strcpy(e.name,"Alice"); e.salary=5000; fseek(fp, 0*sizeof(Emp), SEEK_SET); fwrite(&e, sizeof(Emp),1,fp);
+    e.id=2; strcpy(e.name,"Bob"); e.salary=6000; fseek(fp, 1*sizeof(Emp), SEEK_SET); fwrite(&e, sizeof(Emp),1,fp);
+    // read record 2 (index 1)
+    fseek(fp, 1*sizeof(Emp), SEEK_SET);
+    fread(&e, sizeof(Emp),1,fp);
+    printf("Read id=%d name=%s salary=%.2f\n", e.id, e.name, e.salary);
+    fclose(fp);
+    return 0;
+}
+OUTPUT:
+Read id=2 name=Bob salary=6000.00
+
