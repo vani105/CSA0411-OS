@@ -18,3 +18,7 @@ int main(){
     printf("Main: threads finished\n");
     return 0;
 }
+OUTPUT:
+Thread 1: Hello from thread!
+Thread 2: Hello from thread!
+Main: threads finished
