@@ -1,0 +1,71 @@
+// sleeping_barber.c
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define CHAIRS 3
+sem_t customers, barber, mutex;
+int waiting = 0;
+
+void *barber_fn(void *arg) {
+    while (1) {
+        sem_wait(&customers); // wait for a customer
+        sem_wait(&mutex);
+        waiting--;
+        sem_post(&barber); // barber is ready
+        sem_post(&mutex);
+        // cut hair
+        printf("Barber: cutting hair\n");
+        sleep(1);
+    }
+    return NULL;
+}
+
+void *customer_fn(void *arg) {
+    int id = *(int*)arg;
+    sem_wait(&mutex);
+    if (waiting < CHAIRS) {
+        waiting++;
+        printf("Customer %d: waiting, seats occupied = %d\n", id, waiting);
+        sem_post(&customers);
+        sem_post(&mutex);
+        sem_wait(&barber); // wait for barber to be ready
+        printf("Customer %d: getting haircut\n", id);
+    } else {
+        printf("Customer %d: leaving (no chairs)\n", id);
+        sem_post(&mutex);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t b;
+    pthread_t c[8];
+    int ids[8];
+    sem_init(&customers,0,0);
+    sem_init(&barber,0,0);
+    sem_init(&mutex,0,1);
+    pthread_create(&b, NULL, barber_fn, NULL);
+    for (int i=0;i<8;i++){
+        ids[i]=i+1;
+        sleep( (i==0)?0:1 ); // customers come with delay
+        pthread_create(&c[i], NULL, customer_fn, &ids[i]);
+    }
+    for (int i=0;i<8;i++) pthread_join(c[i], NULL);
+    // In real system barber runs forever; we exit after customers done.
+    return 0;
+    }
+    OUTPUT:
+    Customer 1: waiting, seats occupied = 1
+Barber: cutting hair
+Customer 1: getting haircut
+Customer 2: waiting, seats occupied = 1
+Customer 3: waiting, seats occupied = 2
+Customer 4: waiting, seats occupied = 3
+Customer 5: leaving (no chairs)
+Customer 6: leaving (no chairs)
+Customer 7: leaving (no chairs)
+Customer 8: leaving (no chairs)
+
+}
