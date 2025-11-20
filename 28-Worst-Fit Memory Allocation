@@ -1,0 +1,56 @@
+// worst_fit.c
+#include <stdio.h>
+
+int main() {
+    int m, n;
+    printf("Number of memory blocks: ");
+    if (scanf("%d", &m)!=1) return 0;
+    int blocks[m];
+    for(int i=0;i<m;i++){ printf("Block %d size: ", i); scanf("%d", &blocks[i]); }
+
+    printf("Number of processes: ");
+    scanf("%d", &n);
+    int procs[n];
+    for(int i=0;i<n;i++){ printf("Process %d size: ", i+1); scanf("%d", &procs[i]); }
+
+    int alloc[n];
+    for(int i=0;i<n;i++) alloc[i] = -1;
+
+    for(int i=0;i<n;i++){
+        int worstIndex = -1;
+        for(int j=0;j<m;j++){
+            if(blocks[j] >= procs[i]){
+                if(worstIndex == -1 || blocks[j] > blocks[worstIndex]) worstIndex = j;
+            }
+        }
+        if(worstIndex != -1){
+            alloc[i] = worstIndex;
+            blocks[worstIndex] -= procs[i]; // allocate
+        }
+    }
+
+    printf("\nProcess\tSize\tBlockAllocated\n");
+    for(int i=0;i<n;i++){
+        printf("P%d\t%d\t", i+1, procs[i]);
+        if(alloc[i] != -1) printf("%d\n", alloc[i]); else printf("NotAllocated\n");
+    }
+    return 0;
+}
+INPUT:
+Number of memory blocks: 3
+Block 0 size: 100
+Block 1 size: 500
+Block 2 size: 200
+Number of processes: 4
+Process 1 size: 212
+Process 2 size: 417
+Process 3 size: 112
+Process 4 size: 426
+OUTPUT:
+Process	Size	BlockAllocated
+P1	212	1
+P2	417	-1
+P3	112	2
+P4	426	-1
+
+}
