@@ -1,0 +1,40 @@
+// msgq_example.c
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/wait.h>
+
+struct msgbuf {
+    long mtype;
+    char mtext[100];
+};
+
+int main() {
+    key_t key = ftok(".", 'M');
+    int msqid = msgget(key, IPC_CREAT | 0666);
+    if (msqid < 0) { perror("msgget"); return 1; }
+
+    pid_t pid = fork();
+    if(pid < 0){ perror("fork"); return 1; }
+    if(pid == 0) {
+        // child: receive
+        struct msgbuf msg;
+        msgrcv(msqid, &msg, sizeof(msg.mtext), 1, 0);
+        printf("Child received: %s\n", msg.mtext);
+    } else {
+        // parent: send
+        struct msgbuf msg;
+        msg.mtype = 1;
+        strcpy(msg.mtext, "Hello child via message queue!");
+        msgsnd(msqid, &msg, sizeof(msg.mtext), 0);
+        wait(NULL);
+        msgctl(msqid, IPC_RMID, NULL);
+    }
+    return 0;
+}
+OUTPUT:
+Child received: Hello child via message queue!
+
+}
