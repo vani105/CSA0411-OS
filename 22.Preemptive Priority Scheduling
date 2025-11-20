@@ -1,0 +1,33 @@
+// priority_preemptive.c
+#include <stdio.h>
+#include <limits.h>
+
+int main(){
+    int n; printf("Num processes: "); if(scanf("%d",&n)!=1) return 0;
+    int bt[n], rem[n], pr[n], pid[n];
+    for(int i=0;i<n;i++){ pid[i]=i+1; printf("P%d Burst: ",i+1); scanf("%d",&bt[i]); printf("P%d Priority (1-high): ",i+1); scanf("%d",&pr[i]); rem[i]=bt[i]; }
+    int time=0, completed=0; int wt[n]; for(int i=0;i<n;i++) wt[i]=0;
+    while(completed<n){
+        int idx=-1, best=INT_MAX;
+        for(int i=0;i<n;i++){
+            if(rem[i]>0 && pr[i] < best){ best = pr[i]; idx=i; }
+        }
+        if(idx==-1) break;
+        rem[idx]--;
+        if(rem[idx]==0){
+            completed++;
+            int finish_time = time+1;
+            wt[idx] = finish_time - bt[idx];
+        }
+        time++;
+    }
+    printf("P\tBT\tPR\tWT\tTAT\n");
+    double totw=0, tott=0;
+    for(int i=0;i<n;i++){
+        int tat = wt[i]+bt[i];
+        printf("P%d\t%d\t%d\t%d\t%d\n", pid[i], bt[i], pr[i], wt[i], tat);
+        totw+=wt[i]; tott+=tat;
+    }
+    printf("Avg WT=%.2f, Avg TAT=%.2f\n", totw/n, tott/n);
+    return 0;
+}
